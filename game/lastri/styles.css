@@ -1,0 +1,171 @@
+body {
+font-family: 'Creepster';
+background-color: black;
+}
+
+.bg1{
+    background: url(bg1.jpeg);
+    height: 100vh;
+    background-size: cover;
+    box-shadow: 0 0 999px 91px rgba(1, 1, 1, 1) inset;
+}
+
+.sinopsys h3 {
+    color: #a80000;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: all 1s;
+}
+.sinopsys h3:hover {
+    letter-spacing: 2px;
+    color: black;
+}
+
+.sinopsys h1 {
+    color: #a80000;
+    letter-spacing: 1px;
+    font-size: 90px;
+}
+
+.sinopsys p {
+    color: #a80000;
+    letter-spacing: 2px;
+    font-size: 15px;
+    padding-bottom: 30px;
+}
+
+.fade-in {
+    opacity: 0;
+    transition: opacity 3s ease-in-out;
+}
+
+.fade-in-q {
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+}
+  
+.fade-in-q.show {
+    opacity: 1;
+}
+
+input:focus {
+    outline: none !important;
+}
+
+  .fade-in.show {
+    opacity: 1;
+}
+
+input.custom{
+    letter-spacing: 2px;
+    width: 100%;
+    background-color: black;
+    color: red;
+    border-color: red;
+    padding: 10px;
+}
+
+input.custom.answer{
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    position: absolute;
+    left: -257px;
+}
+
+.answer-lastri{
+    letter-spacing: 2px;
+    color: #a80000;
+    font-size: 24px;
+    position: relative;
+    top: 145px;
+    left: -25px;
+}
+
+
+/* Tablet */
+@media only screen and (min-width: 768px) and (max-width: 1024px) {
+}
+
+/* Mobile */
+@media only screen and (max-width: 768px) {
+    .mainMenu{
+        background: url(bg1.jpeg);
+        height: 100vh;
+        background-size: cover;
+        background-position: center center;
+        box-shadow: 0 0 110px 63px rgba(1, 1, 1, 1) inset;
+        display: flex;
+        align-items: center;
+    }
+    .startMenu{
+        background: url(bg1.jpeg);
+        height: 100vh;
+        background-size: cover;
+        background-position: center center;
+        box-shadow: 0 0 110px 63px rgba(1, 1, 1, 1) inset;
+        display: block;
+        align-items: end;
+        padding-bottom: 95px;
+    }
+    .bg1{
+        display: none;
+    }
+    .mainMenu > .container{
+        display: block !important;
+        margin-top: 46px;
+    }
+
+    .btn-outline-danger{
+        background-color: #a80000;
+        color: black !important;
+        border-color: #a80000;
+    }
+
+    .sinopsys h3 {
+        color: #a80000;
+        cursor: pointer;
+        letter-spacing: 1px;
+        transition: all 1s;
+    }
+    .sinopsys h3:hover {
+        letter-spacing: 2px;
+        color: black;
+    }
+    
+    .sinopsys h1 {
+        color: #a80000;
+        letter-spacing: 1px;
+        font-size: 30px;
+        text-shadow: 1px 3px black;
+    }
+    
+    .sinopsys p {
+        color: #a80000;
+        letter-spacing: 2px;
+        font-size: 13px;
+        padding-bottom: 15px;
+        padding: 0px 25px !important; 
+        text-shadow: 1px 3px black;
+    }
+    
+    .sinopsys small {
+        color: #a80000;
+        letter-spacing: 2px;
+        text-shadow: 1px 3px black;
+    }
+
+    .answer-lastri{
+        letter-spacing: 2px;
+        color: #a80000;
+        font-size: 18px;
+        top: 170px;
+        position: relative;
+        left: auto;
+    }
+    
+    .startMenu > .container{
+        margin-top: 320px;
+    }
+}
+  
