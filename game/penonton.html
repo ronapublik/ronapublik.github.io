@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Focus</title>
+
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+    />
+
+    <style>
+      body {
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #ffffff;
+        font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      }
+      h1 {
+        font-size: 22px;
+        font-weight: 400;
+        color: #111;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      const API_URL =
+        "https://script.google.com/macros/s/AKfycbyjL2ePmsbMvAHnSag5wGEONzO3IFSGG2yN5hx0QKZ9WKA7NxWKYv_w-bGy3GOfypV_/exec";
+      const INTERVAL = 2000;
+      let redirected = false;
+      history.pushState(null, "", location.href);
+      history.pushState(null, "", location.href);
+
+      window.onpopstate = function () {
+        history.pushState(null, "", location.href);
+      };
+
+      async function checkMagic() {
+        if (redirected) return;
+
+        try {
+          const res = await fetch(API_URL, { cache: "no-store" });
+          const text = (await res.text()).trim();
+          if (!text || text.toLowerCase() === "kosong") return;
+          redirected = true;
+          const query = encodeURIComponent(text);
+          const replace = await fetch(
+            "https://script.google.com/macros/s/AKfycbyjL2ePmsbMvAHnSag5wGEONzO3IFSGG2yN5hx0QKZ9WKA7NxWKYv_w-bGy3GOfypV_/exec?action=set&value=kosong",
+            { cache: "no-store" }
+          );
+          window.location.replace(
+            "https://www.google.com/search?tbm=isch&q=" + query
+          );
+        } catch (e) {
+          // silent
+        }
+      }
+      setInterval(checkMagic, INTERVAL);
+    </script>
+  </body>
+</html>
