@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Control</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+        background: #f7f7f7;
+        padding: 20px;
+      }
+      input {
+        width: 100%;
+        padding: 12px;
+        font-size: 18px;
+        margin-bottom: 10px;
+      }
+      button {
+        width: 100%;
+        padding: 12px;
+        font-size: 18px;
+        background: #000;
+        color: #fff;
+        border: none;
+      }
+      .status {
+        margin-top: 10px;
+        font-size: 14px;
+        color: #333;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Set Value</h2>
+
+    <input id="value" placeholder="Ketik kata..." autofocus />
+    <button onclick="setValue()">SET</button>
+
+    <div class="status" id="status"></div>
+
+    <script>
+      const GAS_URL =
+        "https://script.google.com/macros/s/AKfycbyjL2ePmsbMvAHnSag5wGEONzO3IFSGG2yN5hx0QKZ9WKA7NxWKYv_w-bGy3GOfypV_/exec";
+
+      async function setValue() {
+        const val = document.getElementById("value").value.trim();
+        if (!val) return;
+
+        const url = GAS_URL + "?action=set&value=" + encodeURIComponent(val);
+
+        try {
+          const res = await fetch(url, { cache: "no-store" });
+          const text = await res.text();
+
+          document.getElementById("status").innerText = "✔ Value set: " + text;
+        } catch (e) {
+          document.getElementById("status").innerText = "✖ Failed";
+        }
+      }
+    </script>
+  </body>
+</html>
