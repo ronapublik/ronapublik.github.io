@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <title>Level 1 - Reflected XSS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- CSP ketat: izinkan inline script (agar XSS jalan saat vuln ON),
+       tapi blok navigasi/redirect keluar & koneksi keluar -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none';
+                 script-src 'self' 'unsafe-inline';
+                 style-src 'self' 'unsafe-inline';
+                 img-src 'self' data:;
+                 connect-src 'none';
+                 object-src 'none';
+                 base-uri 'none';
+                 frame-ancestors 'none';
+                 form-action 'self';
+                 navigate-to 'none';
+                 worker-src 'none'"
+    />
+
+    <meta name="referrer" content="no-referrer" />
+    <meta name="robots" content="noindex, nofollow, noarchive" />
+
+    <style>
+      :root {
+        --radius: 12px;
+      }
+      body {
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial,
+          sans-serif;
+        max-width: 760px;
+        margin: 40px auto;
+        padding: 0 16px;
+      }
+      .btn-cus {
+        text-decoration: none;
+        color: black;
+        background-color: antiquewhite;
+      }
+      .card {
+        border: 1px solid #e6e6e6;
+        border-radius: var(--radius);
+        padding: 16px;
+      }
+      .row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .btn {
+        border: 0;
+        padding: 10px 14px;
+        border-radius: 10px;
+        cursor: pointer;
+      }
+      .on {
+        background: #ffe6e6;
+        border: 1px solid #ffb3b3;
+      }
+      .safe {
+        background: #eef7ff;
+        border: 1px solid #b5d7ff;
+      }
+      input[type="text"] {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+      }
+      pre {
+        background: #f7f7f7;
+        padding: 10px;
+        border-radius: 10px;
+        overflow: auto;
+      }
+      .tag {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 999px;
+        font-size: 12px;
+        border: 1px solid #ddd;
+      }
+      .tag.on {
+        background: #ffefef;
+        border-color: #ffb3b3;
+        color: #a10000;
+      }
+      .tag.off {
+        background: #eef7ff;
+        border-color: #b5d7ff;
+        color: #004a99;
+      }
+      .muted {
+        color: #666;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Level 1 - Reflected XSS</h1>
+    <footer class="muted" style="margin: 16px">
+      🔒 Dirancang anti-abuse: perlu klik “Turn On” di halaman ini; CSP
+      memblokir redirect & koneksi keluar.
+      <br />
+      🚀 Build by bookhunter.id
+    </footer>
+    <div class="card">
+      <div class="row" style="justify-content: space-between">
+        <div>
+          <strong>Status:</strong>
+          <span id="statusTag" class="tag off">SAFE MODE</span>
+        </div>
+        <div class="row">
+          <button id="enableBtn" class="btn">Turn On Vulnerable Mode</button>
+          <button id="disableBtn" class="btn" style="display: none">
+            Turn Off
+          </button>
+        </div>
+      </div>
+      <p class="muted" id="hint">
+        Default aman. Mode rentan aktif setelah kamu menekan
+        <em>Turn On</em> (auto-expire ±3 menit). Saat aktif, input akan
+        direfleksikan mentah (XSS bisa dieksekusi). Redirect/XHR tetap diblok
+        CSP.
+      </p>
+    </div>
+
+    <br />
+
+    <form class="row card" method="GET" action="">
+      <input
+        id="q"
+        name="q"
+        type="text"
+        placeholder="ketik payload XSS…"
+        autocomplete="off"
+      />
+      <button class="btn">Search</button>
+    </form>
+
+    <div class="card" style="margin-top: 16px; margin-bottom: 40px">
+      <div id="result"></div>
+    </div>
+
+    <script>
+      // ====== Toggle logic (session-scoped, auto-expire) ======
+      const TTL_MS = 3 * 60 * 1000; // 3 menit
+      const KEY = "xss_lab_toggle";
+
+      const now = () => Date.now();
+
+      function isVulnOn() {
+        try {
+          const raw = sessionStorage.getItem(KEY);
+          if (!raw) return false;
+          const data = JSON.parse(raw);
+          return (
+            data.on === true && typeof data.exp === "number" && data.exp > now()
+          );
+        } catch {
+          return false;
+        }
+      }
+      function turnOn() {
+        sessionStorage.setItem(
+          KEY,
+          JSON.stringify({ on: true, exp: now() + TTL_MS })
+        );
+        renderStatus();
+      }
+      function turnOff() {
+        sessionStorage.removeItem(KEY);
+        renderStatus();
+      }
+
+      const statusTag = document.getElementById("statusTag");
+      const enableBtn = document.getElementById("enableBtn");
+      const disableBtn = document.getElementById("disableBtn");
+      const hint = document.getElementById("hint");
+
+      function renderStatus() {
+        const on = isVulnOn();
+        statusTag.textContent = on ? "VULNERABLE MODE (3m)" : "SAFE MODE";
+        statusTag.className = "tag " + (on ? "on" : "off");
+        enableBtn.style.display = on ? "none" : "";
+        disableBtn.style.display = on ? "" : "none";
+        hint.innerHTML = on
+          ? "Mode rentan aktif hingga kadaluarsa (±3 menit) atau kamu klik <em>Turn Off</em>."
+          : "Default aman. Aktifkan mode rentan hanya saat latihan.";
+      }
+
+      enableBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        turnOn();
+      });
+      disableBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        turnOff();
+      });
+
+      renderStatus();
+
+      // ====== Output handler ======
+      const params = new URLSearchParams(location.search);
+      const qRaw = params.get("q");
+      const out = document.getElementById("result");
+
+      const encode = (s) =>
+        String(s)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+
+      if (qRaw !== null) {
+        const q = qRaw; // jangan trim: biarkan apa adanya
+
+        if (isVulnOn()) {
+          // 🚨 MODE RENTAN: refleksi langsung tanpa sanitasi
+          // gunakan document.write untuk mengeksekusi selama parsing
+          out.innerHTML = "<h3>Hasil (VULNERABLE MODE):</h3>" + q;
+        } else {
+          // ✅ MODE AMAN: escape sebelum render
+          out.innerHTML =
+            "<h3>Hasil (SAFE MODE):</h3><pre>" + encode(q) + "</pre>";
+        }
+      }
+    </script>
+
+    <a href="level2.html" class="btn btn-cus">
+      <strong>Next: Level 2</strong>
+    </a>
+  </body>
+</html>

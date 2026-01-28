@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <meta charset="utf-8" />
@@ -118,7 +118,7 @@
           return;
         }
         $.getJSON(
-          "https://script.google.com/macros/s/AKfycbyIA9y5cBHH7Cb0hImUytzjtX7Mf0OZtgukxik-slie1gEd7eVsz1I0vKn6WFo6jO74/exec"
+          "https://script.google.com/macros/s/AKfycbyIA9y5cBHH7Cb0hImUytzjtX7Mf0OZtgukxik-slie1gEd7eVsz1I0vKn6WFo6jO74/exec",
         )
           .done(function (data) {
             let jsonData = data;
@@ -139,7 +139,7 @@
               let firstImageUrl = match ? match[1] : null;
               if (firstImageUrl == null) {
                 let match2 = content.match(
-                  /<picture>.*?<source[^>]+srcset="([^">]+)"/s
+                  /<picture>.*?<source[^>]+srcset="([^">]+)"/s,
                 );
                 firstImageUrl = match2
                   ? match2[1].split(",")[0].split(" ")[0]
@@ -152,7 +152,7 @@
                   "https://miro.medium.com/v2/resize:fill:64:64/1*xD_Qq88h75_SmHHVg-NiAA.jpeg"
               ) {
                 let match = content.match(
-                  /https:\/\/miro\.medium\.com\/v2\/resize:fit:640[^\s,]+/
+                  /https:\/\/miro\.medium\.com\/v2\/resize:fit:640[^\s,]+/,
                 );
                 firstImageUrl = match ? match[0] : null;
               }
@@ -204,7 +204,7 @@
           .fail(function (jqxhr, textStatus, error) {
             console.error("Error:", textStatus, error);
             $(".list-writeup-area").append(
-              `Failed to get content, try again...`
+              `Failed to get content, try again...`,
             );
           });
       });

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <meta charset="utf-8" />
@@ -73,27 +73,45 @@
               </div>
             </div>
             <div
-              style="background-image: url('/challenge/ctf-1.png')"
+              style="background-image: url(&quot;/challenge/ctf-1.png&quot;)"
               class="modal-thumbnail"
             ></div>
-            <div class="modal-body">
+            <div style="padding: 32px; padding-bottom: 0px">
+              <small style="color: orange"
+                ><i class="bi bi-lightbulb-fill"></i> Clue:</small
+              >
+              <ul class="clue-list">
+                <li><small>Deep image analysis</small></li>
+                <li><small>Basic decode technique</small></li>
+                <li>
+                  <small
+                    >Find a google maps link start with
+                    https://www.google.com/maps/@-7.88......</small
+                  >
+                </li>
+              </ul>
+            </div>
+            <div class="modal-body" style="padding-bottom: 20px">
               <div class="row-space-between">
                 <div class="input-group mb-3">
                   <input
+                    id="ctf-ans"
                     type="text"
                     class="form-control input-custom"
-                    placeholder="Recipient's username"
+                    placeholder="@-latitude,longitude"
+                    autocomplete="off"
                   />
                   <button
                     class="button read-writeup submit-ctf w-button"
                     type="button"
                     id="button-addon2"
                   >
-                    Submit
+                    Check
                   </button>
                 </div>
               </div>
             </div>
+            <div style="padding: 32px; padding-top: 0px" id="result-ans"></div>
           </div>
         </div>
       </div>
@@ -104,5 +122,85 @@
       type="text/javascript"
     ></script>
     <script src="/assets/script.js"></script>
+    <script>
+      const WEBAPP_URL =
+        "https://script.google.com/macros/s/AKfycbzNzjDe3I0m8qwBxr692vEWvhpBy8UwOPmj_8pptgs0dP5ap5OsRkPD-XzaSxUPowA2Bw/exec";
+      const LEVEL = "ctf-1";
+      const input = document.getElementById("ctf-ans");
+      const btn = document.getElementById("button-addon2");
+      const out = document.getElementById("result-ans");
+
+      function jsonp(url, params, timeoutMs = 10000) {
+        return new Promise((resolve, reject) => {
+          const cb =
+            "cb_" + Date.now() + "_" + Math.random().toString(16).slice(2);
+          params.callback = cb;
+
+          const qs = new URLSearchParams(params).toString();
+          const src = url + (url.includes("?") ? "&" : "?") + qs;
+
+          const script = document.createElement("script");
+          let timer = null;
+
+          function cleanup() {
+            if (timer) clearTimeout(timer);
+            delete window[cb];
+            script.remove();
+          }
+
+          window[cb] = (data) => {
+            cleanup();
+            resolve(data);
+          };
+
+          script.onerror = () => {
+            cleanup();
+            reject(new Error("Request failed (script load error)"));
+          };
+
+          timer = setTimeout(() => {
+            cleanup();
+            reject(new Error("Request timeout"));
+          }, timeoutMs);
+
+          script.src = src;
+          document.body.appendChild(script);
+        });
+      }
+
+      async function checkAnswer() {
+        const ans = input.value;
+        out.textContent = "Checking...";
+        btn.disabled = true;
+        try {
+          const data = await jsonp(WEBAPP_URL, { level: LEVEL, ans });
+          out.textContent = JSON.stringify(data, null, 2);
+          if (data && data.ok === true) {
+            out.innerHTML = `
+            <small style="color: green"
+                ><i class="bi bi-patch-check-fill"></i> Correct! Reward for you: ${data.reward}
+              </small>`;
+          } else {
+            out.innerHTML = `
+            <small style="color: red"
+                ><i class="bi bi-exclamation-triangle-fill"></i> Incorret! Try again..
+              </small>
+            `;
+          }
+        } catch (err) {
+          out.innerHTML = `
+            <small style="color: red"
+                ><i class="bi bi-exclamation-triangle-fill"></i> ${err.message}
+              </small>
+            `;
+        } finally {
+          btn.disabled = false;
+        }
+      }
+      btn.addEventListener("click", checkAnswer);
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") checkAnswer();
+      });
+    </script>
   </body>
 </html>
